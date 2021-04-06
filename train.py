@@ -21,7 +21,7 @@ from dataloader import DepthDataLoader
 from loss import SILogLoss, BinsChamferLoss
 from utils import RunningAverage, colorize
 
-# os.environ['WANDB_MODE'] = 'dryrun'
+os.environ['WANDB_MODE'] = 'dryrun'
 PROJECT = "MDE-AdaBins"
 logging = True
 
@@ -68,6 +68,7 @@ def log_images(img, depth, pred, args, step):
 def main_worker(gpu, ngpus_per_node, args):
     args.gpu = gpu
 
+    print(f"GPU: {gpu}")
     ###################################### Load model ##############################################
 
     model = models.UnetAdaptiveBins.build(n_bins=args.n_bins, min_val=args.min_depth, max_val=args.max_depth,
@@ -113,7 +114,6 @@ def train(model, args, epochs=10, experiment_name="DeepLab", lr=0.0001, root="."
     global PROJECT
     if device is None:
         device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
     ###################################### Logging setup #########################################
     print(f"Training {experiment_name}")
 
@@ -368,6 +368,10 @@ if __name__ == '__main__':
     else:
         args = parser.parse_args()
 
+    # NO PARRALELISTM
+    args.distributed = False
+    ########
+
     args.batch_size = args.bs
     args.num_threads = args.workers
     args.mode = 'train'
@@ -402,6 +406,7 @@ if __name__ == '__main__':
     args.num_workers = args.workers
     args.ngpus_per_node = ngpus_per_node
 
+    print(f"args.distributed: {args.distributed}")
     if args.distributed:
         args.world_size = ngpus_per_node * args.world_size
         mp.spawn(main_worker, nprocs=ngpus_per_node, args=(ngpus_per_node, args))

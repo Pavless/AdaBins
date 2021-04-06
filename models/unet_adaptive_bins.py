@@ -23,16 +23,16 @@ class UpSampleBN(nn.Module):
 
 
 class DecoderBN(nn.Module):
-    def __init__(self, num_features=2048, num_classes=1, bottleneck_features=2048):
+    def __init__(self, num_features=1280, num_classes=1, bottleneck_features=1280):
         super(DecoderBN, self).__init__()
         features = int(num_features)
 
         self.conv2 = nn.Conv2d(bottleneck_features, features, kernel_size=1, stride=1, padding=1)
 
-        self.up1 = UpSampleBN(skip_input=features // 1 + 112 + 64, output_features=features // 2)
-        self.up2 = UpSampleBN(skip_input=features // 2 + 40 + 24, output_features=features // 4)
-        self.up3 = UpSampleBN(skip_input=features // 4 + 24 + 16, output_features=features // 8)
-        self.up4 = UpSampleBN(skip_input=features // 8 + 16 + 8, output_features=features // 16)
+        self.up1 = UpSampleBN(skip_input=features // 1 + 112, output_features=features // 2)
+        self.up2 = UpSampleBN(skip_input=features // 2 + 40, output_features=features // 4)
+        self.up3 = UpSampleBN(skip_input=features // 4 + 24, output_features=features // 8)
+        self.up4 = UpSampleBN(skip_input=features // 8 + 16, output_features=features // 16)
 
         #         self.up5 = UpSample(skip_input=features // 16 + 3, output_features=features//16)
         self.conv3 = nn.Conv2d(features // 16, num_classes, kernel_size=3, stride=1, padding=1)
@@ -42,8 +42,14 @@ class DecoderBN(nn.Module):
         x_block0, x_block1, x_block2, x_block3, x_block4 = features[4], features[5], features[6], features[8], features[
             11]
 
+        # print(x_block4.size())
+        # print(x_block3.size())
+        # print(x_block2.size())
+        # print(x_block1.size())
+        # print(x_block0.size())
+        # print()
         x_d0 = self.conv2(x_block4)
-
+        # print(x_d0.size())
         x_d1 = self.up1(x_d0, x_block3)
         x_d2 = self.up2(x_d1, x_block2)
         x_d3 = self.up3(x_d2, x_block1)
@@ -120,13 +126,14 @@ class UnetAdaptiveBins(nn.Module):
 
     @classmethod
     def build(cls, n_bins, **kwargs):
-        basemodel_name = 'tf_efficientnet_b5_ap'
+        basemodel_name = 'tf_efficientnet_b0_ap'
 
         print('Loading base model ()...'.format(basemodel_name), end='')
         basemodel = torch.hub.load('rwightman/gen-efficientnet-pytorch', basemodel_name, pretrained=True)
         print('Done.')
 
         # Remove last layer
+        print(basemodel)
         print('Removing last two layers (global_pool & classifier).')
         basemodel.global_pool = nn.Identity()
         basemodel.classifier = nn.Identity()
