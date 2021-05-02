@@ -87,7 +87,7 @@ class UnetAdaptiveBins(nn.Module):
         self.num_classes = n_bins
         self.min_val = min_val
         self.max_val = max_val
-        self.unet = ConvUNet(3, 128, 32, 128, 4)
+        self.unet = ConvUNet(3, 128, 16, 256, 6)
         # self.encoder = Encoder(backend)
         self.adaptive_bins_layer = mViT(128, n_query_channels=128, patch_size=16,
                                         dim_out=n_bins,
