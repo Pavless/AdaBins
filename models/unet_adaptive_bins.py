@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .miniViT import mViT
+from .unet2 import ConvUNet
 
 
 class UpSampleBN(nn.Module):
@@ -86,17 +87,22 @@ class UnetAdaptiveBins(nn.Module):
         self.num_classes = n_bins
         self.min_val = min_val
         self.max_val = max_val
-        self.encoder = Encoder(backend)
+        self.unet = ConvUNet(3, 128, 32, 128, 4)
+        # self.encoder = Encoder(backend)
         self.adaptive_bins_layer = mViT(128, n_query_channels=128, patch_size=16,
                                         dim_out=n_bins,
                                         embedding_dim=128, norm=norm)
 
-        self.decoder = DecoderBN(num_classes=128)
+        # self.decoder = DecoderBN(num_classes=128)
         self.conv_out = nn.Sequential(nn.Conv2d(128, n_bins, kernel_size=1, stride=1, padding=0),
                                       nn.Softmax(dim=1))
 
     def forward(self, x, **kwargs):
-        unet_out = self.decoder(self.encoder(x), **kwargs)
+        # unet_out = self.decoder(self.encoder(x), **kwargs)
+        # print(unet_out.size())
+
+        unet_out = self.unet(x)
+        # print(unet_out.size())
         bin_widths_normed, range_attention_maps = self.adaptive_bins_layer(unet_out)
         out = self.conv_out(range_attention_maps)
 
@@ -117,30 +123,33 @@ class UnetAdaptiveBins(nn.Module):
         return bin_edges, pred
 
     def get_1x_lr_params(self):  # lr/10 learning rate
+        return []
         return self.encoder.parameters()
 
     def get_10x_lr_params(self):  # lr learning rate
-        modules = [self.decoder, self.adaptive_bins_layer, self.conv_out]
+        # modules = [self.decoder, self.adaptive_bins_layer, self.conv_out]
+        modules = [self.unet, self.adaptive_bins_layer, self.conv_out]
         for m in modules:
             yield from m.parameters()
 
     @classmethod
     def build(cls, n_bins, **kwargs):
-        basemodel_name = 'tf_efficientnet_b0_ap'
+        # basemodel_name = 'tf_efficientnet_b0_ap'
 
-        print('Loading base model ()...'.format(basemodel_name), end='')
-        basemodel = torch.hub.load('rwightman/gen-efficientnet-pytorch', basemodel_name, pretrained=True)
-        print('Done.')
+        # print('Loading base model ()...'.format(basemodel_name), end='')
+        # basemodel = torch.hub.load('rwightman/gen-efficientnet-pytorch', basemodel_name, pretrained=True)
+        # print('Done.')
 
-        # Remove last layer
-        print(basemodel)
-        print('Removing last two layers (global_pool & classifier).')
-        basemodel.global_pool = nn.Identity()
-        basemodel.classifier = nn.Identity()
+        # # Remove last layer
+        # print(basemodel)
+        # print('Removing last two layers (global_pool & classifier).')
+        # basemodel.global_pool = nn.Identity()
+        # basemodel.classifier = nn.Identity()
 
-        # Building Encoder-Decoder model
-        print('Building Encoder-Decoder model..', end='')
-        m = cls(basemodel, n_bins=n_bins, **kwargs)
+        # # Building Encoder-Decoder model
+        # print('Building Encoder-Decoder model..', end='')
+        # m = cls(basemodel, n_bins=n_bins, **kwargs)
+        m = cls(None, n_bins=n_bins, **kwargs)
         print('Done.')
         return m
 

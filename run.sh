@@ -5,7 +5,7 @@ python train.py --bs 5 \
     --wd 0.1\
     --div_factor 25\
     --final_div_factor 100\
-    --epochs 25\
+    --epochs 10\
     --workers 11\
     --name UnetAdaptiveBins\
     --n_bins 256\
