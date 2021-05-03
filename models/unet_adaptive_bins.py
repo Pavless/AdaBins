@@ -87,14 +87,14 @@ class UnetAdaptiveBins(nn.Module):
         self.num_classes = n_bins
         self.min_val = min_val
         self.max_val = max_val
-        self.unet = ConvUNet(3, 64, 32, 512, 2)
+        self.unet = ConvUNet(3, 128, 8, 512, 6)
         # self.encoder = Encoder(backend)
-        self.adaptive_bins_layer = mViT(64, n_query_channels=64, patch_size=16,
+        self.adaptive_bins_layer = mViT(128, n_query_channels=128, patch_size=16,
                                         dim_out=n_bins,
-                                        embedding_dim=64, norm=norm)
+                                        embedding_dim=128, norm=norm)
 
         # self.decoder = DecoderBN(num_classes=128)
-        self.conv_out = nn.Sequential(nn.Conv2d(64, n_bins, kernel_size=1, stride=1, padding=0),
+        self.conv_out = nn.Sequential(nn.Conv2d(128, n_bins, kernel_size=1, stride=1, padding=0),
                                       nn.Softmax(dim=1))
 
     def forward(self, x, **kwargs):

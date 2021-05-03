@@ -1,24 +1,34 @@
 import torch
 import torch.nn as nn
 
-class DoubleConv(nn.Module):
+class DepthwiseConv(nn.Module):
+    def __init__(self, nin, nout, kernels_per_layer=1):
+        super().__init__()
+        self.depthwise = nn.Conv2d(nin, nin * kernels_per_layer, kernel_size=3, padding=1, groups=nin)
+        self.pointwise = nn.Conv2d(nin * kernels_per_layer, nout, kernel_size=1)
+
+    def forward(self, x):
+        out = self.depthwise(x)
+        out = self.pointwise(out)
+        return out
+
+class DoubleDepthwiseConv(nn.Module):
     """Applies conv 3x3 twice
 
     [
-        Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-        BatchNorm2d(out_channels),
+        DepthwiseConv(in_channels, out_channels),
         LeakyReLU(0.2),
-        Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+        DepthwiseConv(out_channels, out_channels),
         BatchNorm2d(out_channels),
         LeakyReLU(0.2)
     ]"""
     def __init__(self, in_channels, out_channels):
         super().__init__()
+
         self.layers = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels),
+            DepthwiseConv(in_channels, out_channels),
             nn.LeakyReLU(0.2),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+            DepthwiseConv(out_channels, out_channels),
             nn.BatchNorm2d(out_channels),
             nn.LeakyReLU(0.2)
         )
@@ -32,7 +42,7 @@ class DownUNet(nn.Module):
 
     [
         MaxPool2d(2),
-        DoubleConv()
+        DoubleDepthwiseConv()
     ]"""
 
     def __init__(self, in_channels, out_channels):
@@ -44,7 +54,7 @@ class DownUNet(nn.Module):
         super().__init__()
         self.down = nn.Sequential(
             nn.MaxPool2d(2),
-            DoubleConv(in_channels, out_channels)
+            DoubleDepthwiseConv(in_channels, out_channels)
         )
         
     def forward(self, x):
@@ -57,7 +67,7 @@ class UpUNet(nn.Module):
     [
         Upsample(mode="bilinear"),
         cat(x,x_mirror),
-        DoubleConv(in_channels_0, in_channels_1, out_channels)
+        DoubleDepthwiseConv(in_channels_0, in_channels_1, out_channels)
     ]"""
 
     def __init__(self, in_channels_0, in_channels_1, out_channels):
@@ -67,7 +77,7 @@ class UpUNet(nn.Module):
             in_channels  - number of input channels
             out_channels - number of output channels"""
         super().__init__()
-        self.conv = DoubleConv(in_channels_0+in_channels_1, out_channels)
+        self.conv = DoubleDepthwiseConv(in_channels_0+in_channels_1, out_channels)
 
     def forward(self, x, x_mirror):
         """Run the layer"""
