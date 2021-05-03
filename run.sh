@@ -8,9 +8,9 @@ python train.py --bs 5 \
     --epochs 10\
     --workers 11\
     --name UnetAdaptiveBins\
-    --n_bins 256\
+    --n_bins 128\
     --norm linear\
-    --w_chamfer 0.1\
+    --w_chamfer 0.0\
     --root .\
     --data_path ../dataset/nyu_depth_v2/sync/\
     --gt_path ../dataset/nyu_depth_v2/sync/\

@@ -87,7 +87,7 @@ class UnetAdaptiveBins(nn.Module):
         self.num_classes = n_bins
         self.min_val = min_val
         self.max_val = max_val
-        self.unet = ConvUNet(3, 128, 16, 256, 6)
+        self.unet = ConvUNet(3, 128, 8, 512, 6)
         # self.encoder = Encoder(backend)
         self.adaptive_bins_layer = mViT(128, n_query_channels=128, patch_size=16,
                                         dim_out=n_bins,
@@ -103,22 +103,24 @@ class UnetAdaptiveBins(nn.Module):
 
         unet_out = self.unet(x)
         # print(unet_out.size())
-        bin_widths_normed, range_attention_maps = self.adaptive_bins_layer(unet_out)
+        bin_centers, range_attention_maps = self.adaptive_bins_layer(unet_out)
         out = self.conv_out(range_attention_maps)
 
         # Post process
         # n, c, h, w = out.shape
         # hist = torch.sum(out.view(n, c, h * w), dim=2) / (h * w)  # not used for training
 
-        bin_widths = (self.max_val - self.min_val) * bin_widths_normed  # .shape = N, dim_out
-        bin_widths = nn.functional.pad(bin_widths, (1, 0), mode='constant', value=self.min_val)
-        bin_edges = torch.cumsum(bin_widths, dim=1)
+        centers = (self.max_val - self.min_val) * bin_centers
 
-        centers = 0.5 * (bin_edges[:, :-1] + bin_edges[:, 1:])
         n, dout = centers.size()
         centers = centers.view(n, dout, 1, 1)
 
+
         pred = torch.sum(out * centers, dim=1, keepdim=True)
+
+        # clip to bounds
+        #pred = nn.functional.hardtanh(pred, self.min_val, self.max_val)
+        return torch.zeros_like(centers, device=centers.device), pred
 
         return bin_edges, pred
 

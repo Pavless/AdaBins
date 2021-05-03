@@ -33,13 +33,13 @@ class mViT(nn.Module):
         range_attention_maps = self.dot_product_layer(x, queries)  # .shape = n, n_query_channels, h, w
 
         y = self.regressor(regression_head)  # .shape = N, dim_out
-        if self.norm == 'linear':
-            y = torch.relu(y)
-            eps = 0.1
-            y = y + eps
-        elif self.norm == 'softmax':
-            return torch.softmax(y, dim=1), range_attention_maps
-        else:
-            y = torch.sigmoid(y)
-        y = y / y.sum(dim=1, keepdim=True)
+        # if self.norm == 'linear':
+        #     y = torch.relu(y)
+        #     eps = 0.1
+        #     y = y + eps
+        # elif self.norm == 'softmax':
+        #     return torch.softmax(y, dim=1), range_attention_maps
+        # else:
+        #     y = torch.sigmoid(y)
+        # #y = y / y.sum(dim=1, keepdim=True)
         return y, range_attention_maps

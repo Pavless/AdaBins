@@ -200,7 +200,8 @@ def train(model, args, epochs=10, experiment_name="DeepLab", lr=0.0001, root="."
             optimizer.step()
             if should_log and step % 5 == 0:
                 wandb.log({f"Train/{criterion_ueff.name}": l_dense.item()}, step=step)
-                wandb.log({f"Train/{criterion_bins.name}": l_chamfer.item()}, step=step)
+                if args.w_chamfer > 0:
+                    wandb.log({f"Train/{criterion_bins.name}": l_chamfer.item()}, step=step)
 
             step += 1
             scheduler.step()
