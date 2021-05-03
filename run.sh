@@ -8,7 +8,7 @@ python train.py --bs 5 \
     --epochs 10\
     --workers 11\
     --name UnetAdaptiveBins\
-    --n_bins 256\
+    --n_bins 128\
     --norm linear\
     --w_chamfer 0.1\
     --root .\
