@@ -71,8 +71,10 @@ def main_worker(gpu, ngpus_per_node, args):
     print(f"GPU: {gpu}")
     ###################################### Load model ##############################################
 
+    
+    patch_size = 16 * int(args.reduce_data) // 100
     model = models.UnetAdaptiveBins.build(n_bins=args.n_bins, min_val=args.min_depth, max_val=args.max_depth,
-                                          norm=args.norm)
+                                          norm=args.norm, patch_size=patch_size)
 
     ################################################################################################
 

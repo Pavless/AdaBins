@@ -82,14 +82,14 @@ class Encoder(nn.Module):
 
 
 class UnetAdaptiveBins(nn.Module):
-    def __init__(self, backend, n_bins=100, min_val=0.1, max_val=10, norm='linear'):
+    def __init__(self, backend, n_bins=100, min_val=0.1, max_val=10, norm='linear', patch_size=16):
         super(UnetAdaptiveBins, self).__init__()
         self.num_classes = n_bins
         self.min_val = min_val
         self.max_val = max_val
         self.unet = ConvUNet(3, 128, 8, 512, 6)
         # self.encoder = Encoder(backend)
-        self.adaptive_bins_layer = mViT(128, n_query_channels=128, patch_size=16,
+        self.adaptive_bins_layer = mViT(128, n_query_channels=128, patch_size=patch_size,
                                         dim_out=n_bins,
                                         embedding_dim=128, norm=norm)
 
