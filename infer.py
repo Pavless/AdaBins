@@ -71,8 +71,8 @@ class InferenceHelper:
             self.min_depth = 1e-3
             self.max_depth = 10
             self.saving_factor = 1000  # used to save in 16 bit
-            model = UnetAdaptiveBins.build(n_bins=256, min_val=self.min_depth, max_val=self.max_depth)
-            pretrained_path = "./pretrained/AdaBins_nyu.pt"
+            model = UnetAdaptiveBins.build(n_bins=128, min_val=self.min_depth, max_val=self.max_depth)
+            pretrained_path = "checkpoints/UnetAdaptiveBins_03-May_16-16-nodebs5-tep10-lr0.000357-wd0.1-f7bfaa50-577e-4673-a898-dea718c930c4_best.pt"
         elif dataset == 'kitti':
             self.min_depth = 1e-3
             self.max_depth = 80
