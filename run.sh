@@ -28,4 +28,4 @@ python train.py --bs 5 \
     --min_depth_eval 1e-3\
     --max_depth_eval 10\
     --eigen_crop\
-	--reduce_data 50
+	--reduce_data 25

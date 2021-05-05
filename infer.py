@@ -71,8 +71,9 @@ class InferenceHelper:
             self.min_depth = 1e-3
             self.max_depth = 10
             self.saving_factor = 1000  # used to save in 16 bit
-            model = UnetAdaptiveBins.build(n_bins=256, min_val=self.min_depth, max_val=self.max_depth)
-            pretrained_path = "./pretrained/AdaBins_nyu.pt"
+            print('here')
+            model = UnetAdaptiveBins.build(n_bins=128, patch_size=4, min_val=self.min_depth, max_val=self.max_depth)
+            pretrained_path = "checkpoints/UnetAdaptiveBins_05-May_18-49-nodebs5-tep10-lr0.000357-wd0.1-6aaa9bbc-c919-417c-a767-e86a40f3ca74_best.pt"
         elif dataset == 'kitti':
             self.min_depth = 1e-3
             self.max_depth = 80
@@ -88,7 +89,7 @@ class InferenceHelper:
 
     @torch.no_grad()
     def predict_pil(self, pil_image, visualized=False):
-        # pil_image = pil_image.resize((640, 480))
+        pil_image = pil_image.resize((640//4, 480//4))
         img = np.asarray(pil_image) / 255.
 
         img = self.toTensor(img).unsqueeze(0).float().to(self.device)

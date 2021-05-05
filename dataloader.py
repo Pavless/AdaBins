@@ -138,9 +138,15 @@ class DataLoadPreprocess(Dataset):
                 data_path = self.args.data_path_eval
             else:
                 data_path = self.args.data_path
-
+            
             image_path = os.path.join(data_path, remove_leading_slash(sample_path.split()[0]))
-            image = np.asarray(Image.open(image_path), dtype=np.float32) / 255.0
+            image = Image.open(image_path)
+
+            newsize = (int(self.args.input_width*(self.args.reduce_data/100)),int(self.args.input_height*(self.args.reduce_data/100)))
+            if self.args.reduce_data < 100:
+                image = image.resize(newsize)
+
+            image = np.asarray(image, dtype=np.float32) / 255.0
 
             if self.mode == 'online_eval':
                 gt_path = self.args.gt_path_eval
@@ -148,6 +154,10 @@ class DataLoadPreprocess(Dataset):
                 has_valid_depth = False
                 try:
                     depth_gt = Image.open(depth_path)
+
+                    if self.args.reduce_data < 100:
+                        depth_gt = depth_gt.resize(newsize)
+                    
                     has_valid_depth = True
                 except IOError:
                     depth_gt = False
