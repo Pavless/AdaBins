@@ -27,4 +27,5 @@ python train.py --bs 5 \
     --filenames_file_eval ./train_test_inputs/nyudepthv2_test_files_with_gt.txt\
     --min_depth_eval 1e-3\
     --max_depth_eval 10\
-    --eigen_crop
+    --eigen_crop\
+	--reduce_data 25

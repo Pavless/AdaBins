@@ -115,6 +115,11 @@ class DataLoadPreprocess(Dataset):
                 image = self.rotate_image(image, random_angle)
                 depth_gt = self.rotate_image(depth_gt, random_angle, flag=Image.NEAREST)
 
+            newsize = (int(self.args.input_width*(self.args.reduce_data/100)),int(self.args.input_height*(self.args.reduce_data/100)))
+            if self.args.reduce_data < 100:
+                image = image.resize(newsize)
+                depth_gt = depth_gt.resize(newsize)
+
             image = np.asarray(image, dtype=np.float32) / 255.0
             depth_gt = np.asarray(depth_gt, dtype=np.float32)
             depth_gt = np.expand_dims(depth_gt, axis=2)
@@ -124,7 +129,7 @@ class DataLoadPreprocess(Dataset):
             else:
                 depth_gt = depth_gt / 256.0
 
-            image, depth_gt = self.random_crop(image, depth_gt, self.args.input_height, self.args.input_width)
+            image, depth_gt = self.random_crop(image, depth_gt, newsize[1], newsize[0])
             image, depth_gt = self.train_preprocess(image, depth_gt)
             sample = {'image': image, 'depth': depth_gt, 'focal': focal}
 
