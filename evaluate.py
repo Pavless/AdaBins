@@ -205,6 +205,8 @@ if __name__ == '__main__':
     # args = parser.parse_args()
     args.gpu = int(args.gpu) if args.gpu is not None else 0
     args.distributed = False
+    args.eigen_crop = True
+    args.n_bins = 128
     device = torch.device('cuda:{}'.format(args.gpu))
     test = DepthDataLoader(args, 'online_eval').data
     model = UnetAdaptiveBins.build(n_bins=args.n_bins, min_val=args.min_depth, max_val=args.max_depth,
