@@ -73,7 +73,7 @@ class InferenceHelper:
             self.saving_factor = 1000  # used to save in 16 bit
             print('here')
             model = UnetAdaptiveBins.build(n_bins=128, patch_size=8, min_val=self.min_depth, max_val=self.max_depth)
-            pretrained_path = "checkpoints/UnetAdaptiveBins_06-May_10-32-nodebs5-tep10-lr0.000357-wd0.1-597f13f6-4aaf-4a8a-aed1-78eff61e5cb4_best.pt"
+            pretrained_path = "checkpoints/exp1_5_dataRescale_50.pt"
         elif dataset == 'kitti':
             self.min_depth = 1e-3
             self.max_depth = 80
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from time import time
 
-    img = Image.open("test_imgs/classroom__rgb_00283.jpg")
+    img = Image.open("test_imgs/2.jpg")
     start = time()
     inferHelper = InferenceHelper()
     centers, pred = inferHelper.predict_pil(img)
